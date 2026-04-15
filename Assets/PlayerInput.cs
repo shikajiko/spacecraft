@@ -1108,6 +1108,24 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Throttle"",
+                    ""type"": ""Button"",
+                    ""id"": ""438c0d00-c6e0-4545-a589-adbc6918876f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Break"",
+                    ""type"": ""Button"",
+                    ""id"": ""3c4eeb29-8dc5-49a3-94a5-205d97a6abc4"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -1209,6 +1227,28 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
                     ""action"": ""Yaw"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4996462b-a764-4237-acf7-7179e2bd7948"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Throttle"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7c17cdc0-d799-49b0-a712-9f7079039d18"",
+                    ""path"": ""<Keyboard>/leftCtrl"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Break"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -1304,6 +1344,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         m_Plane_Roll = m_Plane.FindAction("Roll", throwIfNotFound: true);
         m_Plane_Pitch = m_Plane.FindAction("Pitch", throwIfNotFound: true);
         m_Plane_Yaw = m_Plane.FindAction("Yaw", throwIfNotFound: true);
+        m_Plane_Throttle = m_Plane.FindAction("Throttle", throwIfNotFound: true);
+        m_Plane_Break = m_Plane.FindAction("Break", throwIfNotFound: true);
     }
 
     ~@PlayerInput()
@@ -1768,6 +1810,8 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Plane_Roll;
     private readonly InputAction m_Plane_Pitch;
     private readonly InputAction m_Plane_Yaw;
+    private readonly InputAction m_Plane_Throttle;
+    private readonly InputAction m_Plane_Break;
     /// <summary>
     /// Provides access to input actions defined in input action map "Plane".
     /// </summary>
@@ -1791,6 +1835,14 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Plane/Yaw".
         /// </summary>
         public InputAction @Yaw => m_Wrapper.m_Plane_Yaw;
+        /// <summary>
+        /// Provides access to the underlying input action "Plane/Throttle".
+        /// </summary>
+        public InputAction @Throttle => m_Wrapper.m_Plane_Throttle;
+        /// <summary>
+        /// Provides access to the underlying input action "Plane/Break".
+        /// </summary>
+        public InputAction @Break => m_Wrapper.m_Plane_Break;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -1826,6 +1878,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Yaw.started += instance.OnYaw;
             @Yaw.performed += instance.OnYaw;
             @Yaw.canceled += instance.OnYaw;
+            @Throttle.started += instance.OnThrottle;
+            @Throttle.performed += instance.OnThrottle;
+            @Throttle.canceled += instance.OnThrottle;
+            @Break.started += instance.OnBreak;
+            @Break.performed += instance.OnBreak;
+            @Break.canceled += instance.OnBreak;
         }
 
         /// <summary>
@@ -1846,6 +1904,12 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
             @Yaw.started -= instance.OnYaw;
             @Yaw.performed -= instance.OnYaw;
             @Yaw.canceled -= instance.OnYaw;
+            @Throttle.started -= instance.OnThrottle;
+            @Throttle.performed -= instance.OnThrottle;
+            @Throttle.canceled -= instance.OnThrottle;
+            @Break.started -= instance.OnBreak;
+            @Break.performed -= instance.OnBreak;
+            @Break.canceled -= instance.OnBreak;
         }
 
         /// <summary>
@@ -2121,5 +2185,19 @@ public partial class @PlayerInput: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnYaw(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Throttle" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnThrottle(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Break" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnBreak(InputAction.CallbackContext context);
     }
 }
