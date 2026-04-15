@@ -68,7 +68,7 @@ public class PlaneController : MonoBehaviour
     private void FixedUpdate()
     {
         rb.AddForce(transform.forward * throttle * maxThrottle);
-        rb.AddTorque(transform.right * pitch * responseModifier);
+        rb.AddTorque(transform.right * -pitch * responseModifier);
         rb.AddTorque(transform.forward * roll * responseModifier);
         rb.AddTorque(transform.up * yaw * responseModifier);
     }
