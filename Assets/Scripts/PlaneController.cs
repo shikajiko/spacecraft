@@ -7,6 +7,9 @@ public class PlaneController : MonoBehaviour
     public float throttleIncrement = 0.1f;
     public float maxThrottle = 200f;
     public float responsiveness = 10f;
+    public float lift = 135f;
+
+    public float comSphereRad = 5f;
     private float responseModifier
     {
         get
@@ -62,7 +65,6 @@ public class PlaneController : MonoBehaviour
     private void Update()
     {
         HandleInput();
-        Debug.Log("roll: " + roll + " pitch: " + pitch + " yaw: " + yaw);
     }
 
     private void FixedUpdate()
@@ -71,7 +73,22 @@ public class PlaneController : MonoBehaviour
         rb.AddTorque(transform.right * -pitch * responseModifier);
         rb.AddTorque(transform.forward * -roll * responseModifier);
         rb.AddTorque(transform.up * yaw * responseModifier);
+        rb.AddForce(Vector3.up * lift * rb.linearVelocity.magnitude);
     }
 
+
+    void OnDrawGizmos()
+    {
+        if (rb == null)
+        {
+            rb = GetComponent<Rigidbody>();
+        }
+
+        Gizmos.color = Color.red;
+
+        Vector3 worldCOM = transform.TransformPoint(rb.centerOfMass);
+
+        Gizmos.DrawSphere(worldCOM, comSphereRad);
+    }
 
 }
