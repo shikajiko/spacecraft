@@ -62,6 +62,17 @@ namespace StarterAssets
         private float _verticalVelocity;
         private float _terminalVelocity = 53.0f;
         private Animator animator;
+        private float _animationBlend;
+
+        //animID
+        private int _animIDSpeed;
+        private int _animIDGrounded;
+        private int _animIDJump;
+        private int _animIDFreeFall;
+        private int _animIDMotionSpeed;
+        private int _animIDXAxis;
+        private int _animIDZAxis;
+
 
         // timeout deltatime
         private float _jumpTimeoutDelta;
@@ -109,9 +120,12 @@ namespace StarterAssets
 			Debug.LogError( "Starter Assets package is missing dependencies. Please use Tools/Starter Assets/Reinstall Dependencies to fix it");
 #endif
 
+            AssignAnimationIDs();
+
             // reset our timeouts on start
             _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
+
         }
 
         private void Update()
@@ -126,6 +140,17 @@ namespace StarterAssets
             CameraRotation();
             RotateHead();
         }
+
+        private void AssignAnimationIDs()
+        {
+            _animIDSpeed = Animator.StringToHash("Speed");
+            _animIDGrounded = Animator.StringToHash("Grounded");
+            _animIDJump = Animator.StringToHash("Jump");
+            _animIDFreeFall = Animator.StringToHash("FreeFall");
+            _animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
+            _animIDXAxis = Animator.StringToHash("XAxis");
+            _animIDZAxis = Animator.StringToHash("ZAxis");
+        } 
 
         private void GroundedCheck()
         {
@@ -159,13 +184,25 @@ namespace StarterAssets
         private void Move()
         {
             // set target speed based on move speed, sprint speed and if sprint is pressed
-            float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+            float targetSpeed = _input.sprint && _input.move.y >= 0f ? SprintSpeed : MoveSpeed;
+            float inputStrength = _input.sprint ? 1.0f : 0.5f;
+            _animationBlend = Mathf.Lerp(_animationBlend, inputStrength, Time.deltaTime * SpeedChangeRate);
 
-            // a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
+            if (Mathf.Abs(_animationBlend - inputStrength) < 0.01f)
+            {
+                _animationBlend = inputStrength;
+            }
 
             // note: Vector2's == operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is no input, set the target speed to 0
-            if (_input.move == Vector2.zero) targetSpeed = 0.0f;
+            if (_input.move == Vector2.zero)
+            {
+                targetSpeed = 0.0f;
+                _animationBlend = 0.0f;
+            }
+
+            float finalHorizontal = _input.move.x * _animationBlend;
+            float finalVertical = _input.move.y * _animationBlend;
 
             // a reference to the players current horizontal velocity
             float currentHorizontalSpeed = new Vector3(_controller.velocity.x, 0.0f, _controller.velocity.z).magnitude;
@@ -198,6 +235,10 @@ namespace StarterAssets
                 // move
                 inputDirection = transform.right * _input.move.x + transform.forward * _input.move.y;
             }
+
+            animator.SetFloat(_animIDXAxis, finalHorizontal);
+            animator.SetFloat(_animIDZAxis, finalVertical);
+            animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
 
             // move the player
             _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) + new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
