@@ -3,7 +3,7 @@
 using UnityEngine.InputSystem;
 #endif
 
-namespace StarterAssets
+namespace Player
 {
     [RequireComponent(typeof(CharacterController))]
 #if ENABLE_INPUT_SYSTEM
@@ -22,6 +22,14 @@ namespace StarterAssets
         public float SpeedChangeRate = 10.0f;
         [Tooltip("Player's head skeleton component")]
         public Transform headBone;
+
+        [Header("Audio")]
+        [Tooltip("Audio clip to be played on landing after a fall")]
+        public AudioClip LandingAudioClip;
+        [Tooltip("Audio clip to be played on each footstep")]
+        public AudioClip[] FootstepAudioClips;
+        [Tooltip("Audio clip volume")]
+        [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
 
         [Space(10)]
         [Tooltip("The height the player can jump")]
@@ -83,7 +91,7 @@ namespace StarterAssets
         private PlayerInput _playerInput;
 #endif
         private CharacterController _controller;
-        private StarterAssetsInputs _input;
+        private StarterAssets.StarterAssetsInputs _input;
         private GameObject _mainCamera;
 
         private const float _threshold = 0.01f;
@@ -113,7 +121,7 @@ namespace StarterAssets
         private void Start()
         {
             _controller = GetComponent<CharacterController>();
-            _input = GetComponent<StarterAssetsInputs>();
+            _input = GetComponent<StarterAssets.StarterAssetsInputs>();
 #if ENABLE_INPUT_SYSTEM
             _playerInput = GetComponent<PlayerInput>();
 #else
@@ -314,6 +322,26 @@ namespace StarterAssets
         private void RotateHead()
         {
             headBone.localRotation = Quaternion.Euler(_cinemachineTargetPitch, 0.0f, 0.0f);
+        }
+
+        private void OnFootstep(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                if (FootstepAudioClips.Length > 0)
+                {
+                    var index = Random.Range(0, FootstepAudioClips.Length);
+                    AudioSource.PlayClipAtPoint(FootstepAudioClips[index], transform.TransformPoint(_controller.center), FootstepAudioVolume);
+                }
+            }
+        }
+
+        private void OnLand(AnimationEvent animationEvent)
+        {
+            if (animationEvent.animatorClipInfo.weight > 0.5f)
+            {
+                AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);
+            }
         }
     }
 }
